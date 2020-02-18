@@ -88,7 +88,7 @@ class Model:
                 total_elements += batch_size
                 out_data = self.model(in_data)
                 self.optimizer.zero_grad()
-                error = self.loss.compute(out_data, labels)
+                error = self.loss.compute(in_data, out_data, labels)
                 error.backward()
                 self.optimizer.step()
                 loss += error / batch_size
@@ -115,7 +115,7 @@ class Model:
         for b in range(total_batches):
             in_data, labels = self.dataset.__next_dev__()
             out_data = self.model(in_data)
-            self.metric.step(out_data, labels)
+            self.metric.step(in_data, out_data, labels)
         score = self.metric.score()
         self.metric.reset()
         self.dataset.__reset_dev__()
@@ -129,7 +129,7 @@ class Model:
         for b in range(total_batches):
             in_data, labels = self.dataset.__next_test__()
             out_data = self.model(in_data)
-            self.metric.step(out_data, labels)
+            self.metric.step(in_data, out_data, labels)
         score = self.metric.score()
         self.metric.reset()
         self.dataset.__reset_test__()

@@ -11,5 +11,5 @@ class CrossEntropy_Multi_Class:
     def __init__(self):
         self.loss = th.nn.CrossEntropyLoss()
         
-    def compute(self, out_data, labels):
+    def compute(self, in_data, out_data, labels):
         return self.loss(out_data, labels.squeeze())
