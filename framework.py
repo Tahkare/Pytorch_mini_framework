@@ -88,7 +88,7 @@ class Model:
                 total_elements += batch_size
                 out_data = self.model(in_data)
                 self.optimizer.zero_grad()
-                error = self.loss(out_data, labels)
+                error = self.loss.compute(out_data, labels)
                 error.backward()
                 self.optimizer.step()
                 loss += error / batch_size

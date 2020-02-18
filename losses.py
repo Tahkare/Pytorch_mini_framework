@@ -6,6 +6,10 @@ Created on Tue Feb 18 2020
 
 import torch as th
 
-def CrossEntropy_Multi_Class(out_data, labels):
-    l = th.nn.CrossEntropyLoss()
-    return l(out_data, labels.squeeze())
+class CrossEntropy_Multi_Class:
+    
+    def __init__(self):
+        self.loss = th.nn.CrossEntropyLoss()
+        
+    def compute(self, out_data, labels):
+        return self.loss(out_data, labels.squeeze())
