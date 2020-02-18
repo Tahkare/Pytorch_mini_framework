@@ -11,7 +11,8 @@ The Model class expects a name, a Pytorch model, a loss function (either from th
 The functions train and score can be called to either train the model with a given number of epochs or evaluate the metric on the test set.
 
 #### Losses
-The losses module defines a series of loss functions taking as arguments the output of the model and the associated labels for a batch of input data.
+The losses module defines a series of loss functions. <br>
+A loss class must define a single function compute(out_data, labels) taking as arguments the output of the model and the associated labels for a batch of input data and returning the result of the loss function.
 
 #### Metrics
 The metrics module defines a series of evaluation functions to evaluate the performance of the model. <br>
