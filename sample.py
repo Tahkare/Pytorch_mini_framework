@@ -29,7 +29,7 @@ loss = L.CrossEntropy_Multi_Class()
 optimizer = optim.SGD(model.parameters(), lr=0.05)
 encaps = fk.Model(name="4-MLP", model=model, loss=loss, optimizer=optimizer, metric=metric, dataset=dataset)
 
-encaps.hyper_parameters(parameters=[{'a':[450,500,550]},{'b':[250,300,350],'c':[100,150,200]}], epochs=1)
+encaps.hyper_parameters(parameters=[{'a':[450,500,550]},{'b':[250,300,350],'c':[100,150,200]}], epochs=3, verbose=2, use_loss=True)
 encaps.train(epochs=10)
 encaps.restore_best()
 encaps.score()

@@ -76,8 +76,9 @@ class Model:
         self.metric = metric
         self.train_scores = []
         self.dev_scores = []
+        self.losses = []
     
-    def hyper_parameters(self, parameters=None, epochs=1, verbose=1):
+    def hyper_parameters(self, parameters=None, epochs=1, verbose=1, use_loss=False):
         if parameters != None:
             default_values = {}
             for param_set in parameters:
@@ -103,10 +104,16 @@ class Model:
                         self.optimizer.add_param_group(param_group)
                     self.train(epochs=epochs, verbose=0)
                     train_scores, dev_scores = self.get_scores()
+                    losses = self.get_losses()
                     if verbose >= 2:
-                        print("Metric score on dev set is :", dev_scores[-1])
-                    if best_score == None or dev_scores[-1] > best_score:
+                        if use_loss:
+                            print("Loss on train set is :", losses[-1].item())
+                        else:
+                            print("Metric score on dev set is :", dev_scores[-1])
+                    if not use_loss and (best_score == None or (dev_scores[-1] > best_score) == self.metric.higher_is_better):
                         best_score = dev_scores[-1]
+                    if use_loss and (best_score == None or (losses[-1].item() < best_score)):
+                        best_score = losses[-1].item()
                         for label in param_set.keys():
                             default_values[label] = tmp[label]
                 if verbose >= 1:
@@ -121,6 +128,7 @@ class Model:
     def train(self, epochs=10, evaluate=True, verbose=1):
         best_score = None
         self.__reset_scores__()
+        self.__reset_losses__()
         self.dataset.__reset_train__()
         for e in range(epochs):
             self.model.train()
@@ -147,6 +155,7 @@ class Model:
             th.save(self.model.state_dict(), "latest_"+self.name+"_"+self.dataset.name+".th")
             if verbose >= 1:
                 print("Epoch "+str(e+1)+"/"+str(epochs)+" done - Avg. loss = "+str(loss/total_elements))
+            self.losses += [loss/total_elements]
             if evaluate:
                 score = self.metric.score()
                 if verbose >= 1:
@@ -155,7 +164,7 @@ class Model:
                 self.metric.reset()
                 score = self.__evaluate__(verbose=verbose)
                 self.dev_scores += [score]
-                if best_score == None or score > best_score:
+                if best_score == None or ((score > best_score) == self.metric.higher_is_better):
                     best_score = score
                     th.save(self.model.state_dict(), "best_"+self.name+"_"+self.dataset.name+".th")
             self.metric.reset()
@@ -199,6 +208,9 @@ class Model:
         self.train_scores = []
         self.dev_scores = []
         
+    def __reset_losses__(self):
+        self.losses = []
+        
     def plot_scores(self, train=True, dev=True):
         plt.clf()
         tmp = [i for i in range(len(self.train_scores))]
@@ -212,4 +224,7 @@ class Model:
         
     def get_scores(self):
         return self.train_scores, self.dev_scores
+    
+    def get_losses(self):
+        return self.losses
         
